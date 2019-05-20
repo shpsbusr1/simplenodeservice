@@ -16,7 +16,7 @@ pipeline {
             do
             # In Production we sleep less which means we will have more load
             # In Testing we also add the x-dynatrace HTTP Header so that we can demo our "load testing integration" options using Request Attributes!
-            if [[ $PRODUCTION == *"Production"* ]]; then
+            if [ "$PRODUCTION" == "Production" ]; then
                 curl -s "$ENDPOINT/" -o nul &> loadtest.log || true
                 curl -s "$ENDPOINT/version" -o nul &> loadtest.log || true
                 curl -s "$ENDPOINT/api/echo?text=This is from a production user" -o nul &> loadtest.log || true
