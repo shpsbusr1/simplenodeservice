@@ -12,13 +12,9 @@ pipeline {
           sh """
             echo "Load Test Launched against $ENDPOINT - $PRODUCTION"
             while [ ! -f ./endloadtest.txt ];
-            i=0
             while true
             do
-              
               curl -X POST -H "Content-Type: application/json" -d "{\"itemId\":\"03fef6ac-1896-4ce8-bd69-b798f85c6e0b\", \"unitPrice\":\"99.99\"}" $ENDPOINT/carts/1/items
-              i=$((i+1))
-              sleep 2;
             done;
             """
         }
