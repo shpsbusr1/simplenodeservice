@@ -24,7 +24,7 @@
       uri:
         url: "{{serviceurl}}/api/version?newBuildNumber=3"
         return_content: yes
-      when: version is match( "Running build number: 4 Production-Mode: true" )
+      when: version == "Running build number\: 4 Production-Mode\: true"
 
     - name: push success comment to dynatrace
       uri:
