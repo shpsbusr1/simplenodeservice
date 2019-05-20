@@ -1,0 +1,43 @@
+---
+- name: autoremediation playbook
+  hosts: localhost
+  vars:
+    relative_time: "hour"
+
+  tasks:
+    - name: push comment to dynatrace
+      uri:
+        url: "{{dtcommentapiurl}}"
+        method: POST
+        body_format: json
+        body: "{ \"comment\": \"Remediation playbook started.\", \"user\": \"{{commentuser}}\", \"context\": \"Ansible Tower\" }"
+      when: state == "OPEN"
+
+    - name: fetch current version
+      uri:
+        url: "{{serviceurl}}/api/version"
+        return_content: yes
+      register: version
+      ignore_errors: no
+
+    - name: trigger pull back
+      uri:
+        url: "{{serviceurl}}/api/version?newBuildNumber=3"
+        return_content: yes
+      when: version is match( "Running build number: 4 Production-Mode: true" )
+
+    - name: push success comment to dynatrace
+      uri:
+        url: "{{dtcommentapiurl}}"
+        method: POST
+        body_format: json
+        body: "{ \"comment\": \"Invoked remediation action successfully executed.\", \"user\": \"{{commentuser}}\", \"context\": \"Ansible Tower\" }"
+      when: state == "OPEN" and (result.status == 200 or result.status == 201 or result.status == 202)
+
+    - name: push error comment to dynatrace
+      uri:
+        url: "{{dtcommentapiurl}}"
+        method: POST
+        body_format: json
+        body: "{ \"comment\": \"Invoked remediation action failed. \", \"user\": \"{{commentuser}}\", \"context\": \"Ansible Tower\" }"
+      when: state == "OPEN" and (result.status != 200 and result.status != 201 and result.status != 202)
