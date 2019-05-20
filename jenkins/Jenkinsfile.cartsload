@@ -1,0 +1,28 @@
+pipeline {
+  parameters {
+    string(name: 'ENDPOINT', defaultValue: 'http://carts.sockshop-production.104.198.244.122.xip.io', description: 'The URL Endpoint of your SimpleNodeService, e.g: http://simplenode.production.10.23.23.43.xip.io', trim: true)
+  }
+  agent {
+    label 'kubegit'
+  }
+  stages {
+    stage('Run Test (abort job to stop)') {
+      steps {
+        container("curl") {
+          sh """
+            echo "Load Test Launched against $ENDPOINT - $PRODUCTION"
+            while [ ! -f ./endloadtest.txt ];
+            i=0
+            while true
+            do
+              
+              curl -X POST -H "Content-Type: application/json" -d "{\"itemId\":\"03fef6ac-1896-4ce8-bd69-b798f85c6e0b\", \"unitPrice\":\"99.99\"}" $ENDPOINT/carts/1/items
+              i=$((i+1))
+              sleep 2;
+            done;
+            """
+        }
+      }
+    }
+  }
+}
